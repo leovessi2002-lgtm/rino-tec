@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Sistema de Reparación de Balanzas</title>
+  <script>
+    // Simulamos la "base de datos" en un array JSON
+    let solicitudes = [];
+
+    function registrarSolicitud(event) {
+      event.preventDefault();
+
+      const nombre = document.getElementById("nombre").value;
+      const celular = document.getElementById("celular").value;
+      const correo = document.getElementById("correo").value;
+      const problema = document.getElementById("problema").value;
+
+      const nuevaSolicitud = {
+        id: solicitudes.length + 1,
+        nombre,
+        celular,
+        correo,
+        problema,
+        estado: "Recibido"
+      };
+
+      solicitudes.push(nuevaSolicitud);
+      alert("✅ Solicitud registrada correctamente. Código: " + nuevaSolicitud.id);
+      document.getElementById("formSolicitud").reset();
+    }
+
+    function consultarEstado() {
+      const celular = document.getElementById("consultaCelular").value;
+      const resultado = solicitudes.find(s => s.celular === celular);
+
+      if (resultado) {
+        document.getElementById("resultadoConsulta").innerText =
+          "Cliente: " + resultado.nombre +
+          "\nProblema: " + resultado.problema +
+          "\nEstado: " + resultado.estado;
+      } else {
+        document.getElementById("resultadoConsulta").innerText = "❌ No se encontró solicitud con ese número.";
+      }
+    }
+
+    function actualizarEstado(id, nuevoEstado) {
+      const solicitud = solicitudes.find(s => s.id === id);
+      if (solicitud) {
+        solicitud.estado = nuevoEstado;
+        mostrarSolicitudes();
+      }
+    }
+
+    function mostrarSolicitudes() {
+      let tabla = "<table border='1'><tr><th>ID</th><th>Nombre</th><th>Celular</th><th>Problema</th><th>Estado</th><th>Acciones</th></tr>";
+      solicitudes.forEach(s => {
+        tabla += `<tr>
+          <td>${s.id}</td>
+          <td>${s.nombre}</td>
+          <td>${s.celular}</td>
+          <td>${s.problema}</td>
+          <td>${s.estado}</td>
+          <td>
+            <button onclick="actualizarEstado(${s.id}, 'En revisión')">En revisión</button>
+            <button onclick="actualizarEstado(${s.id}, 'En reparación')">En reparación</button>
+            <button onclick="actualizarEstado(${s.id}, 'Listo para recoger')">Listo</button>
+            <button onclick="actualizarEstado(${s.id}, 'Entregado')">Entregado</button>
+          </td>
+        </tr>`;
+      });
+      tabla += "</table>";
+      document.getElementById("panelAdmin").innerHTML = tabla;
+    }
+  </script>
+</head>
+<body>
+  <h1>🔧 Sistema de Reparación de Balanzas</h1>
+
+  <h2>1. Registro de Solicitud (Cliente)</h2>
+  <form id="formSolicitud" onsubmit="registrarSolicitud(event)">
+    <label>Nombre:</label><br>
+    <input type="text" id="nombre" required><br><br>
+    <label>Celular:</label><br>
+    <input type="text" id="celular" required><br><br>
+    <label>Correo:</label><br>
+    <input type="email" id="correo"><br><br>
+    <label>Problema de la balanza:</label><br>
+    <textarea id="problema" required></textarea><br><br>
+    <button type="submit">Registrar</button>
+  </form>
+
+  <hr>
+
+  <h2>2. Consulta de Estado (Cliente)</h2>
+  <label>Ingrese su celular:</label>
+  <input type="text" id="consultaCelular">
+  <button onclick="consultarEstado()">Consultar</button>
+  <pre id="resultadoConsulta"></pre>
+
+  <hr>
+
+  <h2>3. Panel de Administración (Tienda)</h2>
+  <div id="panelAdmin">No hay solicitudes aún.</div>
+</body>
+</html>
